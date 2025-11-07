@@ -1,8 +1,17 @@
+# 🧩 M616 – Tasca 3 · StreamEvents
+
+## Parte 1: Fixtures de grupos y usuarios
+
+### 🎯 Objetivo
+
+Aprender a crear y cargar **fixtures en Django** para poblar la base de datos con datos iniciales (grupos y usuarios del sistema StreamEvents).
+
+---
+
 ## StreamEvents
 
 Aplicació desenvolupada amb **Django** per gestionar esdeveniments i usuaris.
-El projecte està pensat com una base sòlida i extensible amb bones pràctiques de desenvolupament:
-configuració d'entorns, separació de plantilles i fitxers estàtics, estructura modular i ús de fitxers `.env`.
+El projecte està pensat com una base sòlida i extensible amb bones pràctiques de desenvolupament: configuració d'entorns, separació de plantilles i fitxers estàtics, estructura modular i ús de fitxers `.env`.
 Opcionalment, es pot integrar amb **MongoDB** mitjançant **Djongo** en fases posteriors.
 
 ---
@@ -196,3 +205,85 @@ Executa’l amb:
 ```bash
 python manage.py shell < seeds/init_data.py
 ```
+
+---
+
+## ⚙️ 1. Creación del fixture de grupos
+
+**Archivo:** `users/fixtures/01_groups.json`
+
+Este fixture define los tres grupos principales del sistema:
+
+```json
+[
+  { "model": "auth.group", "pk": 1, "fields": { "name": "Organitzadors", "permissions": [] } },
+  { "model": "auth.group", "pk": 2, "fields": { "name": "Participants", "permissions": [] } },
+  { "model": "auth.group", "pk": 3, "fields": { "name": "Moderadors", "permissions": [] } }
+]
+```
+
+---
+
+## 👤 2. Creación del fixture de usuarios
+
+**Archivo:** `users/fixtures/02_users.json`
+
+Incluye 5 usuarios de ejemplo:
+
+* 1 superusuario administrador (`admin`)
+* 1 organizador (`org.marc`)
+* 2 participantes (`part.lucia`, `part.toni`)
+* 1 moderador (`mod.sara`)
+
+Cada usuario está asociado a su grupo mediante el campo `groups`.
+
+> Las contraseñas se generaron usando `make_password()` desde el shell de Django, siguiendo las recomendaciones del enunciado (`admin123` y `password123`).
+
+---
+
+## 📥 3. Carga de datos
+
+Los fixtures se cargan con el siguiente orden para respetar las dependencias:
+
+```bash
+# 1️⃣ Cargar los grupos
+python manage.py loaddata users/fixtures/01_groups.json
+
+# 2️⃣ Cargar los usuarios
+python manage.py loaddata users/fixtures/02_users.json
+```
+
+---
+
+## 🔍 4. Verificación
+
+Comprobar los datos cargados desde el shell de Django:
+
+```bash
+python manage.py shell
+```
+
+```python
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+print(Group.objects.all())
+print(User.objects.all())
+```
+
+O bien entrar al **panel de administración** (`/admin`) para verificar que los grupos y usuarios se han creado correctamente.
+
+---
+
+## ✅ Resultado final
+
+* Los grupos y usuarios aparecen correctamente en la base de datos.
+* Cada usuario pertenece a su grupo correspondiente.
+* El superusuario puede acceder al panel de administración con sus credenciales.
+
+---
+
+## 🧠 Conclusión
+
+Los fixtures permiten inicializar una base de datos con datos predefinidos, garantizando que todos los entornos (local, pruebas o producción) puedan tener la misma configuración inicial de usuarios y grupos sin tener que crearlos manualmente.

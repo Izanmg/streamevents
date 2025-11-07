@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+{% block title %}Perfil de {{ user_obj.username }} · StreamEvents{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4 d-flex gap-4 align-items-center">
+        <div>
+          {% if user_obj.avatar %}
+            <img src="{{ user_obj.avatar.url }}" alt="Avatar" class="rounded-circle" width="96" height="96" style="object-fit: cover;">
+          {% else %}
+            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:96px;height:96px;">
+              <i class="fa-regular fa-user fa-2x"></i>
+            </div>
+          {% endif %}
+        </div>
+        <div class="flex-grow-1">
+          <h2 class="h4 mb-1">{{ user_obj.display_name|default:user_obj.get_full_name|default:user_obj.username }}</h2>
+          <div class="text-muted">{{ user_obj.email }}</div>
+          {% if user_obj.bio %}<p class="mt-3 mb-0">{{ user_obj.bio }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
