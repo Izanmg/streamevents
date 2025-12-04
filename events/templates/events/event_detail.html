@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load event_filters %}
+
+{% block title %}{{ event.title }} · StreamEvents{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'events:list' %}" class="btn btn-sm btn-outline-secondary">
+    ← Volver al listado
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      {% if event.thumbnail %}
+        <img src="{{ event.thumbnail.url }}" class="card-img-top" alt="{{ event.title }}">
+      {% endif %}
+      <div class="card-body">
+        <h1 class="h3 card-title mb-2">{{ event.title }}</h1>
+        <p class="text-muted mb-2">
+          {{ event.get_category_display }} · {{ event.get_difficulty_display }}
+        </p>
+        <p class="mb-2">
+          Estado:
+          <span class="badge bg-secondary">{{ event.get_status_display }}</span>
+        </p>
+        <p class="mb-2">
+          Programado para: <strong>{{ event.scheduled_for|date:"d/m/Y H:i" }}</strong>
+        </p>
+        {% if event.duration_minutes %}
+          <p class="mb-2">
+            Duración prevista: {{ event.duration_minutes }} min
+          </p>
+        {% endif %}
+        <p class="mb-2">
+          Máx. espectadores: {{ event.max_viewers }}
+        </p>
+        {% if event.tags %}
+          <p class="mb-2">
+            Etiquetas:
+            {% for tag in event.tags|split_tags %}
+
+              <span class="badge text-bg-light">{{ tag }}</span>
+            {% endfor %}
+          </p>
+        {% endif %}
+        <hr>
+        <p>{{ event.description|linebreaks }}</p>
+      </div>
+    </div>
+
+    {% if event.stream_url %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Enlace al streaming</h5>
+          <a href="{{ event.stream_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+            Abrir streaming
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Información del creador</h5>
+        <p class="mb-1"><strong>{{ event.creator.username }}</strong></p>
+        {% if event.creator.display_name %}
+          <p class="mb-1">{{ event.creator.display_name }}</p>
+        {% endif %}
+        {% if event.creator.bio %}
+          <p class="text-muted small">{{ event.creator.bio }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if user.is_authenticated and user == event.creator %}
+      <div class="d-grid gap-2">
+        <a href="{% url 'events:edit' event.pk %}" class="btn btn-outline-primary">
+          <i class="fa fa-pen"></i> Editar evento
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

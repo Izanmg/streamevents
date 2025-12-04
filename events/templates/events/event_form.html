@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if mode == 'edit' %}Editar evento{% else %}Nuevo evento{% endif %} · StreamEvents
+{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'events:list' %}" class="btn btn-sm btn-outline-secondary">
+    ← Volver al listado
+  </a>
+</div>
+
+<h1 class="h3 mb-3">
+  {% if mode == 'edit' %}Editar evento{% else %}Nuevo evento{% endif %}
+</h1>
+
+<form method="post" enctype="multipart/form-data" class="card">
+  <div class="card-body">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.field.widget.input_type == 'checkbox' %}
+          <div class="form-check">
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+          </div>
+        {% else %}
+          {{ field }}
+          {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+          {% endif %}
+        {% endif %}
+        {% if field.errors %}
+          <div class="text-danger small">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="card-footer d-flex justify-content-end">
+    <button type="submit" class="btn btn-primary">
+      {% if mode == 'edit' %}Guardar cambios{% else %}Crear evento{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}
