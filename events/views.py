@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from chat.forms import ChatMessageForm
 
 from .models import Event
 from .forms import EventForm
@@ -38,9 +39,9 @@ def event_list_view(request):
 
 
 def event_detail_view(request, pk):
-    """Detalle de un evento concreto."""
     event = get_object_or_404(Event, pk=pk)
-    return render(request, 'events/event_detail.html', {'event': event})
+    chat_form = ChatMessageForm()
+    return render(request, 'events/event_detail.html', {'event': event, 'chat_form': chat_form})
 
 
 @login_required
