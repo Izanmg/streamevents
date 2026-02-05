@@ -125,6 +125,11 @@ class Event(models.Model):
         verbose_name='Actualizado'
     )
 
+    # 👉 CAMPOS PARA LA BÚSQUEDA SEMÁNTICA (TASCA 07)
+    embedding = models.JSONField(blank=True, null=True)
+    embedding_model = models.CharField(max_length=200, blank=True, null=True)
+    embedding_updated_at = models.DateTimeField(blank=True, null=True)
+
     class Meta:
         ordering = ['-scheduled_for', '-created_at']
         verbose_name = 'evento'

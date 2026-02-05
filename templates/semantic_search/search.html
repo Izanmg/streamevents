@@ -1,0 +1,58 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Cerca semantica · StreamEvents{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Cerca semantica</h2>
+
+<form method="get" class="row g-2 align-items-center mb-4">
+  <div class="col-md-7">
+    <input
+      type="text"
+      name="q"
+      value="{{ query }}"
+      class="form-control"
+      placeholder="Ex: concert de jazz aquest cap de setmana"
+    >
+  </div>
+  <div class="col-md-3">
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        name="future"
+        value="0"
+        id="futureOnly"
+        {% if only_future %}checked{% endif %}
+      >
+      <label class="form-check-label" for="futureOnly">Nomes futurs</label>
+    </div>
+  </div>
+  <div class="col-md-2 d-grid">
+    <button type="submit" class="btn btn-primary">Cercar</button>
+  </div>
+</form>
+
+{% if query %}
+  <p class="text-muted">Model: {{ embedding_model }}</p>
+
+  <h3 class="h5">Resultats</h3>
+  {% if results %}
+    <ul class="list-group">
+      {% for event, score in results %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <a href="{{ event.get_absolute_url }}" class="fw-semibold">{{ event.title }}</a>
+            <div class="small text-muted">
+              {{ event.scheduled_for|date:"d/m/Y H:i" }}
+            </div>
+          </div>
+          <span class="badge text-bg-secondary">{{ score|floatformat:3 }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Cap resultat.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}
