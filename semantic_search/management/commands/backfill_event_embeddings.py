@@ -1,4 +1,4 @@
-﻿from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from events.models import Event
@@ -30,17 +30,18 @@ class Command(BaseCommand):
             "title",
             "description",
             "category",
-            "tags"
+            "tags",
+            "embedding",
         ).order_by("created_at")
-
-
-        # ❌ NO usar filter(embedding__isnull=True) con Djongo
 
         if limit and limit > 0:
             qs = qs[:limit]
 
         total = 0
         for e in qs:
+            if not force and getattr(e, "embedding", None):
+                continue
+
             text = " | ".join(
                 [
                     (e.title or "").strip(),
@@ -61,4 +62,3 @@ class Command(BaseCommand):
             total += 1
 
         self.stdout.write(self.style.SUCCESS(f"Embeddings generats: {total}"))
-

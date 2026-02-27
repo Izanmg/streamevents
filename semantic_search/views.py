@@ -1,4 +1,5 @@
-﻿from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import render
 from django.utils import timezone
 
 from events.models import Event
@@ -18,11 +19,15 @@ def _event_text(e: Event) -> str:
 
 def semantic_search(request):
     q = (request.GET.get("q") or "").strip()
-    only_future = request.GET.get("future", "1") == "0"
+    only_future = request.GET.get("future", "0") == "0"
 
     results = []
     if q:
-        q_vec = embed_text(q)
+        try:
+            q_vec = embed_text(q)
+        except RuntimeError as exc:
+            messages.error(request, str(exc))
+            q_vec = []
 
         qs = Event.objects.all()
         if only_future:

@@ -1,5 +1,4 @@
-﻿import threading
-from sentence_transformers import SentenceTransformer
+import threading
 
 _MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 _lock = threading.Lock()
@@ -11,6 +10,13 @@ def get_model():
     if _model is None:
         with _lock:
             if _model is None:
+                try:
+                    from sentence_transformers import SentenceTransformer
+                except Exception as exc:
+                    raise RuntimeError(
+                        "Could not load sentence-transformers. "
+                        "Check transformers/huggingface-hub versions in this environment."
+                    ) from exc
                 _model = SentenceTransformer(_MODEL_NAME)
     return _model
 

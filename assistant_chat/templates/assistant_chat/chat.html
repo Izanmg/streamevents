@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Assistent d'esdeveniments · StreamEvents{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-3">Assistent d'esdeveniments</h1>
+        <p class="text-muted mb-4">
+          Escriu una consulta en llenguatge natural i et recomanare esdeveniments reals de StreamEvents.
+        </p>
+
+        <div class="form-check mb-3">
+          <input id="onlyFuture" class="form-check-input" type="checkbox" checked>
+          <label for="onlyFuture" class="form-check-label">Nomes futurs</label>
+        </div>
+
+        <div class="input-group mb-3">
+          <input id="msg" class="form-control" placeholder="Ex: vull un concert de jazz aquest cap de setmana">
+          <button id="send" class="btn btn-primary" type="button">Enviar</button>
+        </div>
+
+        <div id="answer" class="alert alert-secondary d-none"></div>
+        <div id="followUp" class="small text-muted mb-3"></div>
+        <div id="cards" class="row g-3"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const answerEl = document.getElementById("answer");
+  const followUpEl = document.getElementById("followUp");
+  const cardsEl = document.getElementById("cards");
+  const msgEl = document.getElementById("msg");
+  const sendEl = document.getElementById("send");
+  const onlyFutureEl = document.getElementById("onlyFuture");
+
+  function renderCards(events) {
+    cardsEl.innerHTML = "";
+    (events || []).forEach((event) => {
+      const col = document.createElement("div");
+      col.className = "col-md-6";
+      col.innerHTML = `
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-1"><a href="${event.url}">${event.title}</a></h5>
+            <p class="card-text small text-muted mb-1">${event.category}</p>
+            <p class="card-text small mb-2">${event.scheduled_date || "-"}</p>
+            <span class="badge text-bg-secondary">score ${event.score}</span>
+          </div>
+        </div>
+      `;
+      cardsEl.appendChild(col);
+    });
+  }
+
+  async function sendMessage() {
+    const message = msgEl.value.trim();
+    if (!message) return;
+
+    answerEl.classList.remove("d-none", "alert-danger");
+    answerEl.classList.add("alert-secondary");
+    answerEl.textContent = "Pensant...";
+    followUpEl.textContent = "";
+    cardsEl.innerHTML = "";
+
+    try {
+      const response = await fetch("{% url 'assistant_chat:api_chat' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: message,
+          only_future: onlyFutureEl.checked
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Error en la crida de l'assistent.");
+      }
+
+      answerEl.textContent = data.answer || "";
+      followUpEl.textContent = data.follow_up ? `Pregunta: ${data.follow_up}` : "";
+      renderCards(data.events || []);
+    } catch (error) {
+      answerEl.classList.remove("alert-secondary");
+      answerEl.classList.add("alert-danger");
+      answerEl.textContent = error.message || "No s'ha pogut obtenir resposta.";
+    }
+  }
+
+  sendEl.addEventListener("click", sendMessage);
+  msgEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
+{% endblock %}

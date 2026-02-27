@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'chat',
     'events',
     'semantic_search',
+    'assistant_chat',
 ]   
 
 MIDDLEWARE = [
@@ -141,3 +142,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'users:profile'
 LOGOUT_REDIRECT_URL = 'users:login'
+
+
+def _env_float(name, default):
+    try:
+        return float(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _env_int(name, default):
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return int(default)
+
+
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+OLLAMA_TEMPERATURE = _env_float("OLLAMA_TEMPERATURE", 0.2)
+OLLAMA_TOP_P = _env_float("OLLAMA_TOP_P", 0.9)
+OLLAMA_NUM_CTX = _env_int("OLLAMA_NUM_CTX", 2048)

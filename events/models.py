@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 
 
 class Event(models.Model):
@@ -151,3 +152,6 @@ class Event(models.Model):
     @property
     def is_upcoming(self):
         return self.scheduled_for >= timezone.now()
+
+    def get_absolute_url(self):
+        return reverse("events:detail", kwargs={"pk": self.pk})

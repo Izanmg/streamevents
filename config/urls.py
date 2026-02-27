@@ -29,6 +29,7 @@ urlpatterns = [
     path("chat/", include(("chat.urls", "chat"), namespace="chat")),
     path("events/", include(("events.urls", "events"), namespace="events")),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('', include('assistant_chat.urls')),
     path('', include('semantic_search.urls')),
 
 ]
